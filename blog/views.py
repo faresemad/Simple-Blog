@@ -11,3 +11,8 @@ def post_list(request):
     # render it with HttpResponse without template
     output = ", ".join([str(post) for post in posts])
     return HttpResponse(output)
+
+
+def post_detail(request, id):
+    post = Post.published.get(id=id)
+    return HttpResponse(post)
