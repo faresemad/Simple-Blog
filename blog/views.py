@@ -1,7 +1,9 @@
 from django.http import HttpResponse
 from django.views.generic import DetailView, ListView
 
-from blog.models import Post
+from blog.models import Comment, Post
+
+from .forms import CommentForm
 
 # Create your views here.
 
@@ -24,3 +26,32 @@ class PostDetailView(DetailView):
             publish__day=day,
         )
         return HttpResponse(post)
+
+
+class CommentCreateView(DetailView):
+    def get(self, request, year, month, day, post):
+        post = Post.published.get(
+            slug=post,
+            publish__year=year,
+            publish__month=month,
+            publish__day=day,
+        )
+        form = CommentForm()
+        return HttpResponse(form)
+
+    def post(self, request, year, month, day, post):
+        post = Post.published.get(
+            slug=post,
+            publish__year=year,
+            publish__month=month,
+            publish__day=day,
+        )
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.post = post
+            new_comment.user = request.user
+            new_comment.save()
+            return HttpResponse("Comment Added")
+        else:
+            return HttpResponse("Comment Not Added")
