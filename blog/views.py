@@ -13,6 +13,11 @@ def post_list(request):
     return HttpResponse(output)
 
 
-def post_detail(request, id):
-    post = Post.published.get(id=id)
+def post_detail(request, year, month, day, post):
+    post = Post.published.get(
+        slug=post,
+        publish__year=year,
+        publish__month=month,
+        publish__day=day,
+    )
     return HttpResponse(post)
