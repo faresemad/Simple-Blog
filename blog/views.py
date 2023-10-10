@@ -1,7 +1,9 @@
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
+from taggit.models import Tag
 
-from blog.models import Comment, Post
+from blog.models import Post
 
 from .forms import CommentForm
 
@@ -13,7 +15,11 @@ class PostListView(ListView):
     context_object_name = "posts"
     paginate_by = 3
 
-    def get(self, request):
+    def get(self, request, tag_slug=None):
+        tag = None
+        if tag_slug:
+            tag = get_object_or_404(Tag, slug=tag_slug)
+            self.queryset = self.queryset.filter(tags__in=[tag])
         return HttpResponse(self.queryset)
 
 
