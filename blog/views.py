@@ -1,3 +1,4 @@
+from django.db.models import Count
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.views.generic import DetailView, ListView
@@ -31,7 +32,14 @@ class PostDetailView(DetailView):
             publish__month=month,
             publish__day=day,
         )
-        return HttpResponse(post)
+        post_tags_ids = post.tags.values_list("id", flat=True)
+        similar_posts = Post.published.filter(tags__in=post_tags_ids).exclude(
+            id=post.id
+        )
+        similar_posts = similar_posts.annotate(same_tags=Count("tags")).order_by(
+            "-same_tags", "-publish"
+        )[:4]
+        return HttpResponse({"post": post, "similar_posts": similar_posts})
 
 
 class CommentCreateView(DetailView):
