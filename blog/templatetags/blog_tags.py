@@ -15,3 +15,9 @@ when we use it in template, we can use it like this:
 {% load blog_tags %}
 {% total_posts %}
 """
+
+
+@register.inclusion_tag("blog/post/latest_posts.html")
+def show_latest_posts(count=5):
+    latest_posts = Post.published.order_by("-publish")[:count]
+    return {"latest_posts": latest_posts}
