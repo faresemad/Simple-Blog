@@ -1,4 +1,5 @@
 from django import template
+from django.db.models import Count
 
 from ..models import Post
 
@@ -21,3 +22,27 @@ when we use it in template, we can use it like this:
 def show_latest_posts(count=5):
     latest_posts = Post.published.order_by("-publish")[:count]
     return {"latest_posts": latest_posts}
+
+
+"""
+when we use it in template, we can use it like this:
+{% load blog_tags %}
+{% show_latest_posts 3 %}
+"""
+
+
+@register.simple_tag
+def get_most_commented_posts(count=5):
+    return Post.published.annotate(total_comments=Count("comments")).order_by(
+        "-total_comments"
+    )[:count]
+
+
+"""
+when we use it in template, we can use it like this:
+{% load blog_tags %}
+{% get_most_commented_posts as most_commented_posts %}
+{% for post in most_commented_posts %}
+    ...
+{% endfor %}
+"""
