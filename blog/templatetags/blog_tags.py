@@ -1,5 +1,7 @@
+import markdown
 from django import template
 from django.db.models import Count
+from django.utils.safestring import mark_safe
 
 from ..models import Post
 
@@ -45,4 +47,16 @@ when we use it in template, we can use it like this:
 {% for post in most_commented_posts %}
     ...
 {% endfor %}
+"""
+
+
+@register.filter(name="markdown")
+def markdown_format(text):
+    return mark_safe(markdown.markdown(text))
+
+
+"""
+when we use it in template, we can use it like this:
+{% load blog_tags %}
+{{ post.body|markdown }}
 """
